@@ -1,3 +1,4 @@
 # Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.atomist.spring.agent.AgentAutoConfiguration
+com.atomist.spring.agent.AgentAutoConfiguration,\
+com.atomist.spring.agent.environment.DiscoveryAutoConfiguration

@@ -19,6 +19,7 @@ package com.atomist.spring.agent.reporter;
 import java.util.Collections;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.springframework.boot.context.event.ApplicationFailedEvent;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -51,6 +52,11 @@ public class ApplicationEventReporter {
             publisher.publishEvent(new AgentEvent(State.FAILED, Collections.singletonMap("error",
                     ((ApplicationFailedEvent) event).getException()), this));
         }
+    }
+    
+    @PreDestroy
+    public void shutdown() {
+        publisher.publishEvent(new AgentEvent(AgentEvent.State.STOPPING, this));
     }
 
     private static class ShutdownHook extends Thread {

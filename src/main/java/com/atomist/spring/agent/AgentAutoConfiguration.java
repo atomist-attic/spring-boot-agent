@@ -25,19 +25,17 @@ import org.springframework.boot.actuate.health.HealthAggregator;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.OrderedHealthAggregator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.info.GitProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestTemplate;
 
+import com.atomist.spring.agent.environment.Discovery;
 import com.atomist.spring.agent.reporter.ApplicationEventReporter;
 import com.atomist.spring.agent.reporter.HealthReporter;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,17 +48,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class AgentAutoConfiguration {
 
     private final HealthAggregator healthAggregator;
-
     private final Map<String, HealthIndicator> healthIndicators;
-
-    private GitProperties gitProperties;
-
-    private RestTemplate restTemplate;
-
-    private ObjectMapper objectMapper;
+    private final GitProperties gitProperties;
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
+    private final Map<String, Discovery> discoveries;
 
     public AgentAutoConfiguration(ObjectProvider<HealthAggregator> healthAggregator,
             ObjectProvider<Map<String, HealthIndicator>> healthIndicators,
+            ObjectProvider<Map<String, Discovery>> discoveries,
             ObjectProvider<GitProperties> gitProperties, ObjectProvider<RestTemplate> restTemplate,
             ObjectProvider<ObjectMapper> objectMapper) {
         this.healthAggregator = healthAggregator.getIfAvailable();
@@ -68,6 +64,7 @@ public class AgentAutoConfiguration {
         this.gitProperties = gitProperties.getIfAvailable();
         this.restTemplate = restTemplate.getIfAvailable();
         this.objectMapper = objectMapper.getIfAvailable();
+        this.discoveries = discoveries.getIfAvailable();
     }
 
     @Bean
@@ -91,18 +88,10 @@ public class AgentAutoConfiguration {
     public AgentEventSender eventSender(AgentConfigurationProperties properties,
             ApplicationContext context) {
         return new AgentEventSender(properties, context,
+                this.discoveries != null ? this.discoveries : Collections.emptyMap(), 
                 this.gitProperties != null ? this.gitProperties
                         : new GitProperties(new Properties()),
                 this.restTemplate != null ? this.restTemplate : new RestTemplate(),
                 this.objectMapper != null ? this.objectMapper : new ObjectMapper());
     }
-
-    @Bean
-    @ConditionalOnMissingBean(name = "eventTaskExecutor")
-    public TaskExecutor eventTaskExecutor() {
-        ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();
-        pool.setMaxPoolSize(1);
-        return pool;
-    }
-
 }

@@ -29,6 +29,8 @@ public class AgentConfigurationProperties {
     private boolean enabled = true;
     
     private boolean debug = false;
+    
+    private String id;
 
     private Properties environment = new Properties();
     
@@ -62,5 +64,13 @@ public class AgentConfigurationProperties {
     
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+    
+    public void setId(String id) {
+        this.id = id;
+    }
+    
+    public String getId() {
+        return id;
     }
 }

@@ -28,12 +28,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.info.GitProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.atomist.spring.agent.AgentEvent.State;
+import com.atomist.spring.agent.environment.Discovery;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -41,27 +41,25 @@ public class AgentEventSender {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentEventSender.class);
 
-    private final AgentConfigurationProperties properties;
-
     private final ApplicationContext context;
-
     private final GitProperties gitProperties;
-
-    private final RestTemplate restTemplate;
-
     private final ObjectMapper objectMapper;
-
     private Map<String, Object> payload;
+    private final AgentConfigurationProperties properties;
+    private final RestTemplate restTemplate;
+    private final Map<String, Discovery> discoveries;
 
     private boolean stopped = false;
 
     public AgentEventSender(AgentConfigurationProperties properties, ApplicationContext context,
-            GitProperties gitProperties, RestTemplate restTemplate, ObjectMapper objectMapper) {
+            Map<String, Discovery> discoveries, GitProperties gitProperties,
+            RestTemplate restTemplate, ObjectMapper objectMapper) {
         this.properties = properties;
         this.context = context;
         this.gitProperties = gitProperties;
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
+        this.discoveries = discoveries;
     }
 
     @PostConstruct
@@ -70,19 +68,28 @@ public class AgentEventSender {
 
         payload = new HashMap<>();
         payload.put("git", git);
+        payload.put("version", AgentEventSender.class.getPackage().getImplementationVersion());
 
         this.properties.getEnvironment().entrySet()
                 .forEach(e -> payload.put(e.getKey().toString(), e.getValue()));
-
+        
+        Map<String, Object> valueMap = new HashMap<>();
+        this.discoveries.values().forEach(d -> valueMap.put(d.getName(), d.getEnvironment()));
+        payload.put("data", valueMap);
+        
         payload.put("host", getHostName());
-        payload.put("id", context.getId() + "-" + getPid() + "-" + getHostName());
+        if (this.properties.getId() != null) {
+            payload.put("id", this.properties.getId());
+        }
+        else {
+            payload.put("id", context.getId() + "-" + getPid() + "-" + getHostName());
+        }
     }
 
     @EventListener
-    @Async("eventTaskExecutor")
     public void onApplicationEvent(AgentEvent event) {
         if (!this.stopped) {
-            
+
             long ts = event.getTimestamp();
             String state = event.state().toString().toLowerCase();
 
@@ -93,23 +100,7 @@ public class AgentEventSender {
             pl.putAll(event.payload());
 
             debugPayload(pl);
-
-            try {
-                restTemplate.postForEntity(properties.getUrl(), pl, String.class);
-            }
-            catch (RestClientException e) {
-                if (properties.isDebug()) {
-                    LOGGER.debug("Error sending event to Atomist:", e);
-                }
-                else {
-                    LOGGER.debug("Error sending event to Atomist: {}", e.getMessage());
-                }
-            }
-            finally {
-                if (event.state() == State.STOPPING) {
-                    this.stopped = true;
-                }
-            }
+            doSend(event, pl);
         }
     }
 
@@ -121,6 +112,25 @@ public class AgentEventSender {
             }
             catch (JsonProcessingException e) {
                 LOGGER.debug("Error sending event to Atomist", e);
+            }
+        }
+    }
+
+    private void doSend(AgentEvent event, Map<String, Object> pl) {
+        try {
+            restTemplate.postForEntity(properties.getUrl(), pl, String.class);
+        }
+        catch (RestClientException e) {
+            if (properties.isDebug()) {
+                LOGGER.debug("Error sending event to Atomist:", e);
+            }
+            else {
+                LOGGER.debug("Error sending event to Atomist: {}", e.getMessage());
+            }
+        }
+        finally {
+            if (event.state() == State.STOPPING) {
+                this.stopped = true;
             }
         }
     }
