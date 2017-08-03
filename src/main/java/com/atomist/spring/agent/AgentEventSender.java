@@ -72,11 +72,12 @@ public class AgentEventSender {
 
         this.properties.getEnvironment().entrySet()
                 .forEach(e -> payload.put(e.getKey().toString(), e.getValue()));
-        
+
         Map<String, Object> valueMap = new HashMap<>();
-        this.discoveries.values().forEach(d -> valueMap.put(d.getName(), d.getEnvironment()));
+        this.discoveries.values().stream().filter(v -> v.getEnvironment() != null)
+                .forEach(d -> valueMap.put(d.getName(), d.getEnvironment()));
         payload.put("data", valueMap);
-        
+
         payload.put("host", getHostName());
         if (this.properties.getId() != null) {
             payload.put("id", this.properties.getId());

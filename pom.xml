@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.atomist</groupId>
 	<artifactId>spring-boot-agent</artifactId>
-	<version>0.1.5</version>
+	<version>0.1.7</version>
 	<packaging>jar</packaging>
 	<name>spring-boot-agent</name>
 	<description>Atomist Agent for Spring Boot applications</description>
