@@ -1,7 +1,6 @@
 # Atomist 'spring-boot-agent'
 
 [![Build Status](https://travis-ci.org/atomist/spring-boot-agent.svg?branch=master)](https://travis-ci.org/atomist/spring-boot-agent)
-[![Slack Status](https://join.atomist.com/badge.svg)](https://join.atomist.com/)
 
 An Agent that sends events for Spring Boot applications to Atomist.
 
