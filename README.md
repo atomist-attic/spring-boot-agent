@@ -1,5 +1,7 @@
 # Atomist spring-boot-agent
 
+[![Download](https://api.bintray.com/packages/atomist/atomist/spring-boot-agent/images/download.svg)](https://bintray.com/atomist/atomist/spring-boot-agent/_latestVersion)
+
 An agent that sends events for Spring Boot applications to Atomist.
 
 Learn more about automating software delivery at the [Atomist web
