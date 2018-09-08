@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2017 the original author or authors.
+ * Copyright 2018 Atomist.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,21 +137,11 @@ public class AgentEventSender {
     }
 
     private String getHostName() {
-        return getValue(new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                return InetAddress.getLocalHost().getHostName();
-            }
-        });
+        return getValue(() -> InetAddress.getLocalHost().getHostName());
     }
 
     private String getPid() {
-        return getValue(new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                return System.getProperty("PID");
-            }
-        });
+        return getValue(() -> System.getProperty("PID"));
     }
 
     private String getValue(Callable<Object> call) {

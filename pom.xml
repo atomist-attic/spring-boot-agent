@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.atomist</groupId>
 	<artifactId>spring-boot-agent</artifactId>
-	<version>0.1.7</version>
+	<version>0.2.0</version>
 	<packaging>jar</packaging>
 	<name>spring-boot-agent</name>
 	<description>Atomist Agent for Spring Boot applications</description>
@@ -13,7 +13,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.5.2.RELEASE</version>
+		<version>1.5.15.RELEASE</version>
 		<relativePath />
 	</parent>
 
@@ -22,6 +22,8 @@
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<java.version>1.8</java.version>
+		<jackson-2-version>2.9.6</jackson-2-version>
+		<slf4jVersion>1.7.25</slf4jVersion>
 	</properties>
 	<licenses>
 		<license>
@@ -35,16 +37,9 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>com.atomist</groupId>
-				<artifactId>atomist-bom</artifactId>
-				<version>1.0.0-m.1</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-framework-bom</artifactId>
-				<version>4.3.7.RELEASE</version>
+				<version>4.3.19.RELEASE</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -58,6 +53,21 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>${jackson-2-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson-2-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4jVersion}</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -129,28 +139,11 @@
 			</plugin>
 		</plugins>
 	</build>
-	<repositories>
-		<repository>
-			<id>public-atomist-snapshots</id>
-			<url>https://atomist.jfrog.io/atomist/libs-dev/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>public-atomist-release</id>
-			<name>Atomist Release</name>
-			<url>https://atomist.jfrog.io/atomist/libs-release</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
 	<distributionManagement>
 		<repository>
-			<id>public-atomist-release</id>
-			<name>Atomist Release</name>
-			<url>https://atomist.jfrog.io/atomist/libs-release-local</url>
+			<id>bintray-atomist-atomist</id>
+			<name>atomist-atomist</name>
+			<url>https://api.bintray.com/maven/atomist/atomist/${project.artifactId}/;publish=1</url>
 		</repository>
 	</distributionManagement>
 </project>
