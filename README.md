@@ -15,28 +15,49 @@ Documentation][docs].
 To make proper use of the agent, you must have [created an Atomist
 workspace][get-started].
 
-Then you can drop the Agent in your application by adding the following to your `pom.xml`:
+Then you can drop the Agent in your application by adding the
+following to your `pom.xml`:
 
 ```xml
-<dependency>
-	<groupId>com.atomist</groupId>
-	<artifactId>spring-boot-agent</artifactId>
-	<version>latest version</version>
-</dependency>
+<project>
+	...
+	<dependencies>
+		...
+		<dependency>
+			<groupId>com.atomist</groupId>
+			<artifactId>spring-boot-agent</artifactId>
+			<version>VERSION_RANGE</version>
+		</dependency>
+	</dependencies>
+</project>
 ```
 
-As this agent is not available from Maven Central adding the following repo is requried, too:
+If you are using a Spring Boot 2 release, replace `VERSION_RANGE` with
+`[2.0.0,3.0.0)`.  If you are using a Spring Boot 1 release, replace
+`VERSION_RANGE` with `[1.0.0,2.0.0)`.
+
+As this agent is not available from Maven Central adding the following
+repo is requried, too:
 
 ```xml
-<repository>
-	<id>public-atomist-release</id>
-	<name>Atomist Release</name>
-	<url>https://atomist.jfrog.io/atomist/libs-release</url>
-</repository>
+<project>
+	...
+	<repositories>
+		...
+		<repository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>bintray-atomist-atomist</id>
+			<name>bintray</name>
+			<url>https://dl.bintray.com/atomist/atomist</url>
+		</repository>
+	</repositories>
+</project>
 ```
 
-Once add to your project, the agent can be configured from the Spring Boot `application.yml` or
-`application.properties`:
+Once add to your project, the agent can be configured from the Spring
+Boot `application.yml` or `application.properties`:
 
 ```
 # enable or disable the agent
