@@ -23,15 +23,30 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("atomist")
 public class AgentConfigurationProperties {
-    
+
+    /**
+     * URL of the Atomist webhook for your workspace
+     */
     private URI url = URI.create("https://webhook.atomist.com/atomist/spring");
-    
+
+    /**
+     * Enable trace output; this allows you to review the event messages the agent will send
+     */
     private boolean enabled = true;
-    
+
+    /**
+     * Enable or disable the agent
+     */
     private boolean debug = false;
-    
+
+    /**
+     * Id of the agent to be sent to Atomist
+     */
     private String id;
 
+    /**
+     * Information to send to Atomist regarding your environment
+     */
     private Properties environment = new Properties();
     
     public Properties getEnvironment() {
